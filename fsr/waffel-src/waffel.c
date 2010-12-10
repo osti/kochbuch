@@ -28,6 +28,11 @@ void* udplisten(void*);
 int qWaffelCount();
 struct tm* qLastWaffel();
 int blubber;
+int print_greetings();
+int print_datetime();
+void print_help();
+int start_alsamixer();
+int show_plot();
 
 history_s* history = NULL;
 
@@ -49,16 +54,19 @@ int main(void)
 
     mocp_start();
 
-    output_time_with_text("Beginn: ");
+    output_time_with_text("Begin: ");
+
+    print_greetings();
 
     infile = fopen("waffel.input", "r");
     if (infile != NULL)
     {
-	printf("Lese Geschichte ein...\n");
+	printf("reading history...\n");
 	waffelloop(infile);
 	fclose(infile);
     }
     udplistener_rv = pthread_create(&udplistener, NULL, udplisten, NULL);
+    print_help();
     err = waffelloop(stdin);
     if (err != 0)
 	printf("error in line %d\n", err);
@@ -172,12 +180,22 @@ int waffelloop(FILE* infile)
 	{
 	    if (buffer[0] == 'x' || buffer[0] == 'X')
 		break;
+	    if (buffer[0] == 'a' || buffer[0] == 'A')
+		start_alsamixer();
+	    if (buffer[0] == 'h' || buffer[0] == 'H')
+		print_help();
+	    if (buffer[0] == '?')
+		print_help();
 	    if (buffer[0] == 's' || buffer[0] == 'S')
 		output_uptime();
 	    if (buffer[0] == 'l' || buffer[0] == 'L')
 		output_last_waffel();
 	    if (buffer[0] == 'n' || buffer[0] == 'N')
 		blubber = system("mocp --next");
+	    if (buffer[0] == 'p' || buffer[0] == 'P')
+		show_plot();
+	    if (buffer[0] == 't' || buffer[0] == 'T')
+		print_datetime();
 	}
 	else
 	{
@@ -379,5 +397,41 @@ struct tm* qLastWaffel()
     thetime = localtime(&now);
 
     return thetime;
+}
+
+int print_greetings()
+{
+    return system("cat logo");
+}
+
+void print_help()
+{
+    printf("enter NUMBER and press enter to sell NUMBER many Waffeln\n");
+    printf("\n");
+    printf("enter a or A for [A]lsamixer\n");
+    printf("enter h, H or ? for this [H]elp\n");
+    printf("enter l or L to print [L]ast Waffel\n");
+    printf("enter n or N to play [N]ext song\n");
+    printf("enter p or P to show [P]lot\n");
+    printf("enter s or S to print [S]tatistics\n");
+    printf("enter t or T to show date[T]ime\n");
+    printf("enter x or X to e[X]it\n");
+    printf("press ctrl + alt + del (strg + alt + entf) to shutdown\n");
+    printf("\n");
+}
+
+int start_alsamixer()
+{
+    return system("alsamixer");
+}
+
+int show_plot()
+{
+    return system("gnuplot < gnu.plot");
+}
+
+int print_datetime()
+{
+    return system("date");
 }
 
