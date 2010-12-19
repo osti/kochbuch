@@ -56,8 +56,6 @@ int main(void)
 
     output_time_with_text("Begin: ");
 
-    print_greetings();
-
     infile = fopen("waffel.input", "r");
     if (infile != NULL)
     {
@@ -65,6 +63,9 @@ int main(void)
 	waffelloop(infile);
 	fclose(infile);
     }
+
+    print_greetings();
+
     udplistener_rv = pthread_create(&udplistener, NULL, udplisten, NULL);
     print_help();
     err = waffelloop(stdin);
